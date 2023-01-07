@@ -1,7 +1,7 @@
-Loan | Advanced JavaScript course project
+# Loan | Advanced JavaScript course project
 
-Stack:
-
-Native JavaScript (OOP style)
-Gulp
-Webpack
+**Stack:**
+1. Native JavaScript (OOP style)
+2. Gulp
+3. Webpack
+#
