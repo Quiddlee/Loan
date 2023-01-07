@@ -128,6 +128,23 @@ class Slider {
     if (whichSlide < 1) {
       this.slideIndex = this.slides.length;
     }
+    try {
+      if (whichSlide === 3) {
+        this.hanson.style.cssText = `
+                    height: 0px;
+                    opacity: 0;
+                    bottom: -170px;
+                `;
+        setTimeout(() => {
+          this.hanson.style.cssText = `
+                    transition: 1s all;
+                    height: 164px;
+                    opacity: 1;
+                    bottom: 0px;
+                    `;
+        }, 3000);
+      }
+    } catch (e) {}
     Array.from(this.slides).forEach(slide => {
       slide.style.display = 'none';
     });
@@ -137,6 +154,9 @@ class Slider {
     this.showSlides(this.slideIndex += whichSlide);
   }
   render() {
+    try {
+      this.hanson = document.querySelector('.hanson');
+    } catch (e) {}
     this.buttons.forEach(button => {
       button.addEventListener('click', () => {
         this.plusSlides(1);
