@@ -49,6 +49,22 @@ export default class MiniSlider extends Slider {
         });
     }
 
+    hoverToStopAutoPlay() {
+        let paused = setInterval(() => this.nextSLide(), 1000);
+
+        [this.container, this.next.parentNode].forEach(elem => {
+            elem.addEventListener('mouseenter', () => {
+                clearTimeout(paused);
+            });
+        });
+
+        [this.container, this.next.parentNode].forEach(elem => {
+            elem.addEventListener('mouseleave', () => {
+                paused = setInterval(() => this.nextSLide(), 1000);
+            });
+        });
+    }
+
     init() {
         this.container.style.cssText = `
             display: flex;
@@ -61,7 +77,7 @@ export default class MiniSlider extends Slider {
         this.decorizeSlides();
 
         if (this.autoPlay) {
-            setInterval(() => this.nextSLide(), 5000);
+            this.hoverToStopAutoPlay();
         }
     }
 }

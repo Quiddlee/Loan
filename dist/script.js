@@ -309,6 +309,19 @@ class MiniSlider extends _slider__WEBPACK_IMPORTED_MODULE_0__["default"] {
       this.decorizeSlides();
     });
   }
+  hoverToStopAutoPlay() {
+    let paused = setInterval(() => this.nextSLide(), 1000);
+    [this.container, this.next.parentNode].forEach(elem => {
+      elem.addEventListener('mouseenter', () => {
+        clearTimeout(paused);
+      });
+    });
+    [this.container, this.next.parentNode].forEach(elem => {
+      elem.addEventListener('mouseleave', () => {
+        paused = setInterval(() => this.nextSLide(), 1000);
+      });
+    });
+  }
   init() {
     this.container.style.cssText = `
             display: flex;
@@ -319,7 +332,7 @@ class MiniSlider extends _slider__WEBPACK_IMPORTED_MODULE_0__["default"] {
     this.bindTriggers();
     this.decorizeSlides();
     if (this.autoPlay) {
-      setInterval(() => this.nextSLide(), 5000);
+      this.hoverToStopAutoPlay();
     }
   }
 }
