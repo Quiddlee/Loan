@@ -5,11 +5,13 @@ export default class MiniSlider extends Slider {
         super(container, next, prev, classActive, animate, autoPlay);
     }
 
+    filterAnArray(value) {
+        delete this.slides[value];
+        this.slides = this.slides.filter(elem => elem !== undefined);
+    }
+
     decorizeSlides() {
-        this.slides = Array.from(this.slides).filter(elem => elem.tagName !== 'BUTTON');
-        console.log(this.slides);
         Array.from(this.slides).forEach(slide => {
-            console.log(slide);
             slide.classList.remove(this.classActive);
             if (this.animate) {
                 slide.querySelector('.card__title').style.opacity = '0.4';
@@ -25,10 +27,12 @@ export default class MiniSlider extends Slider {
     }
 
     nextSLide() {
-        this.next.addEventListener('click', () => {
-            this.container.appendChild(this.slides[0]);
-            this.decorizeSlides();
-        });
+        this.container.appendChild(this.slides[0]);
+
+        this.slides.push(this.slides[0]);
+        this.filterAnArray(0);
+
+        this.decorizeSlides();
     }
 
     bindTriggers() {
@@ -37,6 +41,10 @@ export default class MiniSlider extends Slider {
         this.prev.addEventListener('click', () => {
             const active = this.slides[this.slides.length - 1];
             this.container.insertBefore(active, this.slides[0]);
+
+            this.slides.unshift(active);
+            this.filterAnArray(this.slides.length - 1);
+
             this.decorizeSlides();
         });
     }

@@ -275,11 +275,12 @@ class MiniSlider extends _slider__WEBPACK_IMPORTED_MODULE_0__["default"] {
   constructor(container, next, prev, classActive, animate, autoPlay) {
     super(container, next, prev, classActive, animate, autoPlay);
   }
+  filterAnArray(value) {
+    delete this.slides[value];
+    this.slides = this.slides.filter(elem => elem !== undefined);
+  }
   decorizeSlides() {
-    this.slides = Array.from(this.slides).filter(elem => elem.tagName !== 'BUTTON');
-    console.log(this.slides);
     Array.from(this.slides).forEach(slide => {
-      console.log(slide);
       slide.classList.remove(this.classActive);
       if (this.animate) {
         slide.querySelector('.card__title').style.opacity = '0.4';
@@ -293,16 +294,18 @@ class MiniSlider extends _slider__WEBPACK_IMPORTED_MODULE_0__["default"] {
     }
   }
   nextSLide() {
-    this.next.addEventListener('click', () => {
-      this.container.appendChild(this.slides[0]);
-      this.decorizeSlides();
-    });
+    this.container.appendChild(this.slides[0]);
+    this.slides.push(this.slides[0]);
+    this.filterAnArray(0);
+    this.decorizeSlides();
   }
   bindTriggers() {
     this.next.addEventListener('click', () => this.nextSLide());
     this.prev.addEventListener('click', () => {
       const active = this.slides[this.slides.length - 1];
       this.container.insertBefore(active, this.slides[0]);
+      this.slides.unshift(active);
+      this.filterAnArray(this.slides.length - 1);
       this.decorizeSlides();
     });
   }
@@ -345,7 +348,7 @@ class Slider {
       autoPlay
     } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     this.container = document.querySelector(container);
-    this.slides = this.container.children;
+    this.slides = Array.from(this.container.children).filter(elem => elem.tagName !== 'BUTTON');
     this.buttons = document.querySelectorAll(buttons);
     this.prev = document.querySelector(prev);
     this.next = document.querySelector(next);
