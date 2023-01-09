@@ -13,47 +13,54 @@ export default class Form {
         form.addEventListener('submit', (event) => {
              event.preventDefault();
 
-             this.load = this.sayThanks(form, this.messages.loading);
+             const message = this.sayThanks(form, this.messages.loading);
+             message.animate([
+                 {opacity: 1},
+                 {opacity: 0.1},
+                 {opacity: 1}
+             ], {
+                duration: 3000,
+                iterations: Infinity
+             });
 
              const formData = new FormData(form);
              this.request('assets/question.php', formData)
                  .then(data => {
                     console.log(data);
-                    this.sayThanks(form, this.messages.success, this.load);
+                    this.message = this.sayThanks(form, this.messages.success, this.message);
                  })
                 .catch(data => {
                     console.log(data);
-                    this.sayThanks(form, this.messages.failure, this.load);
+                    this.message = this.sayThanks(form, this.messages.failure, this.message);
                 })
                 .finally(() => {
-                   form.reset();
+                    form.reset();
+                    setTimeout(() => {
+                        this.message.classList.remove('fadeIn');
+                        this.message.classList.add('fadeOut');
+                    }, 3000);
+
+                    setTimeout(() => {
+                        this.message.remove();
+                    }, 4000);
                 });
 
         });
     }
 
-    sayThanks(form, message, removeLoad = null) {
-        if (removeLoad) this.load.remove();
+    sayThanks(form, message, prevElem = null) {
+        if (prevElem) prevElem.remove();
 
-        this.load = document.createElement('div');
-        this.load.style.cssText = `
+        this.message = document.createElement('div');
+        this.message.style.cssText = `
             margin-top: 15px;
             font-size: 15px;
         `;
-        this.load.textContent = message;
-        this.load.classList.add('animated', 'fadeIn');
-        form.appendChild(this.load);
+        this.message.textContent = message;
+        this.message.classList.add('animated', 'fadeIn');
+        form.appendChild(this.message);
 
-        setTimeout(() => {
-            this.load.classList.remove('fadeIn');
-            this.load.classList.add('fadeOut');
-        }, 3000);
-
-        setTimeout(() => {
-            this.load.remove()
-        }, 4000);
-
-        return this.load;
+        return this.message;
     }
 
     async request(url, data) {
