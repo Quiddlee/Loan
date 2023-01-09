@@ -98,6 +98,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_slider_slider_main__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/slider/slider-main */ "./src/js/modules/slider/slider-main.js");
 /* harmony import */ var _modules_slider_slider_mini__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/slider/slider-mini */ "./src/js/modules/slider/slider-mini.js");
 /* harmony import */ var _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/playVideo */ "./src/js/modules/playVideo.js");
+/* harmony import */ var _modules_difference__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/difference */ "./src/js/modules/difference.js");
+
 
 
 
@@ -133,7 +135,54 @@ window.addEventListener('DOMContentLoaded', () => {
   feedSlider.init();
   const player = new _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__["default"]('.showup .play', '.overlay');
   player.init();
+  new _modules_difference__WEBPACK_IMPORTED_MODULE_3__["default"]('.officerold', '.officernew', '.officer__card-item').init();
 });
+
+/***/ }),
+
+/***/ "./src/js/modules/difference.js":
+/*!**************************************!*\
+  !*** ./src/js/modules/difference.js ***!
+  \**************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Difference; });
+class Difference {
+  constructor(oldOfficer, newOfficer, cards) {
+    this.oldOfficer = document.querySelector(oldOfficer);
+    this.newOfficer = document.querySelector(newOfficer);
+    this.oldCards = this.oldOfficer.querySelectorAll(cards);
+    this.newCards = this.newOfficer.querySelectorAll(cards);
+    this.oldCounter = 0;
+    this.newCounter = 0;
+  }
+  bindTriggers(container, cards, counter) {
+    container.querySelector('.plus').addEventListener('click', () => {
+      cards[counter].style.display = 'flex';
+      counter++;
+      if (counter === cards.length - 1) {
+        cards[cards.length - 1].remove();
+      }
+    });
+  }
+  hideItems() {
+    [this.oldCards, this.newCards].forEach(elem => {
+      elem.forEach((card, i, arr) => {
+        if (i !== arr.length - 1) {
+          card.style.display = 'none';
+        }
+      });
+    });
+  }
+  init() {
+    this.hideItems();
+    this.bindTriggers(this.oldOfficer, this.oldCards, this.oldCounter);
+    this.bindTriggers(this.newOfficer, this.newCards, this.newCounter);
+  }
+}
 
 /***/ }),
 
