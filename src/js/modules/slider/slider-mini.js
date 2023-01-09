@@ -5,11 +5,6 @@ export default class MiniSlider extends Slider {
         super(container, next, prev, classActive, animate, autoPlay);
     }
 
-    filterAnArray(value) {
-        delete this.slides[value];
-        this.slides = this.slides.filter(elem => elem !== undefined);
-    }
-
     decorizeSlides() {
         Array.from(this.slides).forEach(slide => {
             slide.classList.remove(this.classActive);
@@ -24,6 +19,11 @@ export default class MiniSlider extends Slider {
             this.slides[0].querySelector('.card__title').style.opacity = '1';
             this.slides[0].querySelector('.card__controls-arrow').style.opacity = '1';
         }
+    }
+
+    filterAnArray(value) {
+        delete this.slides[value];
+        this.slides = this.slides.filter(elem => elem !== undefined);
     }
 
     nextSLide() {
@@ -50,17 +50,15 @@ export default class MiniSlider extends Slider {
     }
 
     hoverToStopAutoPlay() {
-        let paused = setInterval(() => this.nextSLide(), 1000);
+        let paused = setInterval(() => this.nextSLide(), 5000);
 
         [this.container, this.next.parentNode].forEach(elem => {
             elem.addEventListener('mouseenter', () => {
                 clearTimeout(paused);
             });
-        });
 
-        [this.container, this.next.parentNode].forEach(elem => {
             elem.addEventListener('mouseleave', () => {
-                paused = setInterval(() => this.nextSLide(), 1000);
+                paused = setInterval(() => this.nextSLide(), 5000);
             });
         });
     }
