@@ -1,7 +1,6 @@
 export default class Form {
-    constructor(form, input) {
-        this.form = document.querySelector(form);
-        this.input = document.querySelector(input);
+    constructor(forms) {
+        this.forms = document.querySelectorAll(forms);
         this.messages = {
             success: "Thanks! We'll contact you soon.",
             failure: "Something went wrong...",
@@ -9,7 +8,7 @@ export default class Form {
         }
     }
 
-    postData(form) {
+    bindPostData(form) {
         form.addEventListener('submit', (event) => {
              event.preventDefault();
 
@@ -24,7 +23,7 @@ export default class Form {
              });
 
              const formData = new FormData(form);
-             this.request('assets/question.php', formData)
+             this.postData('assets/question.php', formData)
                  .then(data => {
                     console.log(data);
                     this.message = this.sayThanks(form, this.messages.success, this.message);
@@ -35,12 +34,12 @@ export default class Form {
                 })
                 .finally(() => {
                     form.reset();
-                    setTimeout(() => {
+                    this.classTimeoutId = setTimeout(() => {
                         this.message.classList.remove('fadeIn');
                         this.message.classList.add('fadeOut');
                     }, 3000);
 
-                    setTimeout(() => {
+                    this.prevElemTimeoutId = setTimeout(() => {
                         this.message.remove();
                     }, 4000);
                 });
@@ -49,12 +48,17 @@ export default class Form {
     }
 
     sayThanks(form, message, prevElem = null) {
-        if (prevElem) prevElem.remove();
+        try {
+            clearInterval(this.prevElemTimeoutId);
+            clearInterval(this.classTimeoutId);
+            this.message.remove();
+            prevElem.remove();
+        } catch(e) {}
 
         this.message = document.createElement('div');
         this.message.style.cssText = `
             margin-top: 15px;
-            font-size: 15px;
+            font-size: 18px;
         `;
         this.message.textContent = message;
         this.message.classList.add('animated', 'fadeIn');
@@ -63,7 +67,7 @@ export default class Form {
         return this.message;
     }
 
-    async request(url, data) {
+    async postData(url, data) {
         const res = await fetch(url, {
             method: 'POST',
             body: data
@@ -94,7 +98,10 @@ export default class Form {
     }
 
     init() {
-        this.postData(this.form);
-        this.validateInput(this.input);
+        this.forms.forEach(form => {
+            this.input = form.querySelector('[name="email"]');
+            this.validateInput(this.input);
+            this.bindPostData(form)
+        });
     }
 }
