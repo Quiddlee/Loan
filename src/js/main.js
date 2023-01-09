@@ -40,6 +40,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     new Difference('.officerold', '.officernew', '.officer__card-item').init();
 
-    new Form('join .form').init();
-    new Form('.schedule .form').init();
+    new Form('.join .form', '.join [name="email"]').init();
+    new Form('.schedule .form', '.schedule [name="email"]').init();
 });
