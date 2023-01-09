@@ -2,10 +2,11 @@ export default class Form {
     constructor(forms) {
         this.forms = document.querySelectorAll(forms);
         this.messages = {
-            success: "Thanks! We'll contact you soon.",
+            success: "Thanks! We'll contact you soon!",
             failure: "Something went wrong...",
             loading: "Loading...",
         }
+        this.path = 'assets/question.php';
     }
 
     bindPostData(form) {
@@ -23,13 +24,12 @@ export default class Form {
              });
 
              const formData = new FormData(form);
-             this.postData('assets/question.php', formData)
+             this.postData(this.path, formData)
                  .then(data => {
                     console.log(data);
                     this.message = this.sayThanks(form, this.messages.success, this.message);
                  })
-                .catch(data => {
-                    console.log(data);
+                .catch(() => {
                     this.message = this.sayThanks(form, this.messages.failure, this.message);
                 })
                 .finally(() => {
@@ -80,11 +80,13 @@ export default class Form {
         return await res.text();
     }
 
-    validateInput(input) {
-        input.addEventListener('input', () => {
+    validateMailInput(input) {
+        input.addEventListener('keypress', (event) => {
             let timerId = null;
 
-            if (input.value.match(/[а-я]/gi)) {
+            if (event.key.match(/[^a-z 0-9 @ \.]/gi)) {
+                event.preventDefault();
+
                 input.style.border = '1.5px solid red';
                 timerId = setTimeout(() => input.style.border = '', 5000);
             }
@@ -92,16 +94,63 @@ export default class Form {
                 input.style.border = '';
                 clearTimeout(timerId);
             }
+        });
+    }
 
-            input.value = input.value.replace(/[а-я]/gi, '');
+    initMask() {
+        const setCursorPosition = (position, element) => {
+            element.focus();
+
+            if (element.setSelectionRange) {
+                element.setSelectionRange(position, position);
+            }
+
+            if (element.createTextRange) {
+                const range = element.createTextRange();
+                range.collapse(true);
+                range.moveEnd('character', position);
+                range.moveStart('character', position);
+                range.select();
+            }
+        };
+
+        function createMask(event) {
+            const matrix = '+1 (___) ___-__ __';
+            const deffault = matrix.replace(/\D/g, '');
+            let value = this.value.replace(/\D/g, '');
+            let i = 0;
+
+            if (deffault.length >= value.length || +value[0] !== +matrix[1]) value = deffault;
+
+            this.value = matrix.replace(/./g, function(number) {
+                return /[_\d]/.test(number) && i < value.length ? value.charAt(i++) : i >= value.length ? '' : number;
+            });
+
+            if (event.type === 'blur') {
+                if (this.value.length === 2) this.value = '';
+            }
+
+            if (event.type === 'focus') {
+                setCursorPosition(this.value.length, this);
+            }
+        }
+
+        const inputs = document.querySelectorAll('[name="phone"]');
+
+        inputs.forEach(input => {
+            input.addEventListener('input', createMask);
+            input.addEventListener('focus', createMask);
+            input.addEventListener('blur', createMask);
         });
     }
 
     init() {
         this.forms.forEach(form => {
             this.input = form.querySelector('[name="email"]');
-            this.validateInput(this.input);
+            this.validateMailInput(this.input);
             this.bindPostData(form)
         });
+
+        this.initMask();
     }
 }
