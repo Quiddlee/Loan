@@ -99,6 +99,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_slider_slider_mini__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/slider/slider-mini */ "./src/js/modules/slider/slider-mini.js");
 /* harmony import */ var _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/playVideo */ "./src/js/modules/playVideo.js");
 /* harmony import */ var _modules_difference__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/difference */ "./src/js/modules/difference.js");
+/* harmony import */ var _modules_forms__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
+
 
 
 
@@ -109,6 +111,13 @@ window.addEventListener('DOMContentLoaded', () => {
     container: '.page'
   });
   slider.render();
+  const modulePageSlider = new _modules_slider_slider_main__WEBPACK_IMPORTED_MODULE_0__["default"]({
+    buttons: '.next',
+    container: '.moduleapp',
+    nextBtns: '.nextmodule',
+    prevBtns: '.prevmodule'
+  });
+  modulePageSlider.render();
   const showUpSlider = new _modules_slider_slider_mini__WEBPACK_IMPORTED_MODULE_1__["default"]({
     container: '.showup__content-slider',
     next: '.showup__next',
@@ -136,6 +145,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const player = new _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__["default"]('.showup .play', '.overlay');
   player.init();
   new _modules_difference__WEBPACK_IMPORTED_MODULE_3__["default"]('.officerold', '.officernew', '.officer__card-item').init();
+  new _modules_forms__WEBPACK_IMPORTED_MODULE_4__["default"]('.form').init();
 });
 
 /***/ }),
@@ -152,12 +162,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Difference; });
 class Difference {
   constructor(oldOfficer, newOfficer, cards) {
-    this.oldOfficer = document.querySelector(oldOfficer);
-    this.newOfficer = document.querySelector(newOfficer);
-    this.oldCards = this.oldOfficer.querySelectorAll(cards);
-    this.newCards = this.newOfficer.querySelectorAll(cards);
-    this.oldCounter = 0;
-    this.newCounter = 0;
+    try {
+      this.oldOfficer = document.querySelector(oldOfficer);
+      this.newOfficer = document.querySelector(newOfficer);
+      this.oldCards = this.oldOfficer.querySelectorAll(cards);
+      this.newCards = this.newOfficer.querySelectorAll(cards);
+      this.oldCounter = 0;
+      this.newCounter = 0;
+    } catch (e) {}
   }
   bindTriggers(container, cards, counter) {
     container.querySelector('.plus').addEventListener('click', () => {
@@ -178,9 +190,153 @@ class Difference {
     });
   }
   init() {
-    this.hideItems();
-    this.bindTriggers(this.oldOfficer, this.oldCards, this.oldCounter);
-    this.bindTriggers(this.newOfficer, this.newCards, this.newCounter);
+    try {
+      this.hideItems();
+      this.bindTriggers(this.oldOfficer, this.oldCards, this.oldCounter);
+      this.bindTriggers(this.newOfficer, this.newCards, this.newCounter);
+    } catch (e) {}
+  }
+}
+
+/***/ }),
+
+/***/ "./src/js/modules/forms.js":
+/*!*********************************!*\
+  !*** ./src/js/modules/forms.js ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Form; });
+class Form {
+  constructor(forms) {
+    this.forms = document.querySelectorAll(forms);
+    this.messages = {
+      success: "Thanks! We'll contact you soon!",
+      failure: "Something went wrong...",
+      loading: "Loading..."
+    };
+    this.path = 'assets/question.php';
+  }
+  bindPostData(form) {
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const message = this.sayThanks(form, this.messages.loading);
+      message.animate([{
+        opacity: 1
+      }, {
+        opacity: 0.1
+      }, {
+        opacity: 1
+      }], {
+        duration: 3000,
+        iterations: Infinity
+      });
+      const formData = new FormData(form);
+      this.postData(this.path, formData).then(data => {
+        console.log(data);
+        this.message = this.sayThanks(form, this.messages.success, this.message);
+      }).catch(() => {
+        this.message = this.sayThanks(form, this.messages.failure, this.message);
+      }).finally(() => {
+        form.reset();
+        this.classTimeoutId = setTimeout(() => {
+          this.message.classList.remove('fadeIn');
+          this.message.classList.add('fadeOut');
+        }, 3000);
+        this.prevElemTimeoutId = setTimeout(() => {
+          this.message.remove();
+        }, 4000);
+      });
+    });
+  }
+  sayThanks(form, message) {
+    let prevElem = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    try {
+      clearInterval(this.prevElemTimeoutId);
+      clearInterval(this.classTimeoutId);
+      this.message.remove();
+      prevElem.remove();
+    } catch (e) {}
+    this.message = document.createElement('div');
+    this.message.style.cssText = `
+            margin-top: 15px;
+            font-size: 18px;
+        `;
+    this.message.textContent = message;
+    this.message.classList.add('animated', 'fadeIn');
+    form.appendChild(this.message);
+    return this.message;
+  }
+  async postData(url, data) {
+    const res = await fetch(url, {
+      method: 'POST',
+      body: data
+    });
+    if (!res.ok) {
+      throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+    }
+    return await res.text();
+  }
+  validateMailInput(input) {
+    input.addEventListener('keypress', event => {
+      let timerId = null;
+      if (event.key.match(/[^a-z 0-9 @ \.]/gi)) {
+        event.preventDefault();
+        input.style.border = '1.5px solid red';
+        timerId = setTimeout(() => input.style.border = '', 5000);
+      } else {
+        input.style.border = '';
+        clearTimeout(timerId);
+      }
+    });
+  }
+  initMask() {
+    const setCursorPosition = (position, element) => {
+      element.focus();
+      if (element.setSelectionRange) {
+        element.setSelectionRange(position, position);
+      }
+      if (element.createTextRange) {
+        const range = element.createTextRange();
+        range.collapse(true);
+        range.moveEnd('character', position);
+        range.moveStart('character', position);
+        range.select();
+      }
+    };
+    function createMask(event) {
+      const matrix = '+1 (___) ___-__ __';
+      const deffault = matrix.replace(/\D/g, '');
+      let value = this.value.replace(/\D/g, '');
+      let i = 0;
+      if (deffault.length >= value.length || +value[0] !== +matrix[1]) value = deffault;
+      this.value = matrix.replace(/./g, function (number) {
+        return /[_\d]/.test(number) && i < value.length ? value.charAt(i++) : i >= value.length ? '' : number;
+      });
+      if (event.type === 'blur') {
+        if (this.value.length === 2) this.value = '';
+      }
+      if (event.type === 'focus') {
+        setCursorPosition(this.value.length, this);
+      }
+    }
+    const inputs = document.querySelectorAll('[name="phone"]');
+    inputs.forEach(input => {
+      input.addEventListener('input', createMask);
+      input.addEventListener('focus', createMask);
+      input.addEventListener('blur', createMask);
+    });
+  }
+  init() {
+    this.forms.forEach(form => {
+      this.input = form.querySelector('[name="email"]');
+      this.validateMailInput(this.input);
+      this.bindPostData(form);
+    });
+    this.initMask();
   }
 }
 
@@ -254,8 +410,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _slider__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./slider */ "./src/js/modules/slider/slider.js");
 
 class MainSlider extends _slider__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor(buttons) {
+  constructor(buttons, nextBtns, prevBtns) {
     super(buttons);
+    this.nextBtns = document.querySelectorAll(nextBtns);
+    this.prevBtns = document.querySelectorAll(prevBtns);
+    console.log(nextBtns, prevBtns);
+    console.log(this.container);
   }
   showSlides(whichSlide) {
     if (whichSlide > this.slides.length) {
@@ -289,20 +449,39 @@ class MainSlider extends _slider__WEBPACK_IMPORTED_MODULE_0__["default"] {
   plusSlides(whichSlide) {
     this.showSlides(this.slideIndex += whichSlide);
   }
-  render() {
-    try {
-      this.hanson = document.querySelector('.hanson');
-    } catch (e) {}
-    this.buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        this.plusSlides(1);
-      });
-      button.parentNode.previousElementSibling.addEventListener('click', event => {
-        event.preventDefault();
-        this.showSlides(this.slideIndex = 1);
+  asideBtns(buttons, index) {
+    console.log(buttons);
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.plusSlides(index);
       });
     });
-    this.showSlides(this.slideIndex);
+  }
+  render() {
+    if (this.container) {
+      try {
+        this.hanson = document.querySelector('.hanson');
+      } catch (e) {}
+      this.buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          this.plusSlides(1);
+        });
+        button.parentNode.previousElementSibling.addEventListener('click', event => {
+          event.preventDefault();
+          this.showSlides(this.slideIndex = 1);
+        });
+      });
+      this.showSlides(this.slideIndex);
+
+      // this.asideBtns(this.prevBtns, -1);
+      // this.asideBtns(this.nextBtns, 1);
+
+      // document.querySelectorAll('.prevmodule').forEach(elem => {
+      //     elem.addEventListener('click', () => {
+      //         this.plusSlides(-1);
+      //     });
+      // });
+    }
   }
 }
 
@@ -370,17 +549,19 @@ class MiniSlider extends _slider__WEBPACK_IMPORTED_MODULE_0__["default"] {
     });
   }
   init() {
-    this.container.style.cssText = `
+    try {
+      this.container.style.cssText = `
             display: flex;
             flex-wrap: wrap;
             overflow: hidden;
             align-items: flex-start;
-        `;
-    this.bindTriggers();
-    this.decorizeSlides();
-    if (this.autoPlay) {
-      this.hoverToStopAutoPlay();
-    }
+            `;
+      this.bindTriggers();
+      this.decorizeSlides();
+      if (this.autoPlay) {
+        this.hoverToStopAutoPlay();
+      }
+    } catch (e) {}
   }
 }
 
@@ -408,7 +589,9 @@ class Slider {
       autoPlay
     } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     this.container = document.querySelector(container);
-    this.slides = Array.from(this.container.children).filter(elem => elem.tagName !== 'BUTTON');
+    try {
+      this.slides = Array.from(this.container.children).filter(elem => elem.tagName !== 'BUTTON');
+    } catch (e) {}
     this.buttons = document.querySelectorAll(buttons);
     this.prev = document.querySelector(prev);
     this.next = document.querySelector(next);

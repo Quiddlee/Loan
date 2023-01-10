@@ -8,7 +8,9 @@ export default class Slider {
         autoPlay
     } = {}) {
         this.container = document.querySelector(container);
-        this.slides = Array.from(this.container.children).filter(elem => elem.tagName !== 'BUTTON');
+        try {
+            this.slides = Array.from(this.container.children).filter(elem => elem.tagName !== 'BUTTON');
+        } catch(e){}
         this.buttons = document.querySelectorAll(buttons);
         this.prev = document.querySelector(prev);
         this.next = document.querySelector(next);
