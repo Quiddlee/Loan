@@ -5,9 +5,7 @@ export default class ShowInfo {
 
     bindTriggers() {
         this.triggers.forEach(elem => {
-            elem.parentElement.style.zIndex = '5';
             const content = elem.parentElement.nextElementSibling;
-
             content.style.cssText = `
                 margin: 0;
                 position: relative;
