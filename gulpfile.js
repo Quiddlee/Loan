@@ -73,7 +73,7 @@ gulp.task("build", gulp.parallel("copy-html", "copy-assets", "build-js"));
 gulp.task("build-prod-js", () => {
     return gulp.src("./src/js/main.js")
                 .pipe(webpack({
-                    mode: 'production',
+                    mode: 'development',
                     output: {
                         filename: 'script.js'
                     },
