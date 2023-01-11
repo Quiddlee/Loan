@@ -1,3 +1,5 @@
+import animations from "./animations";
+
 export default class VideoPlayer {
     constructor(triggers, popup) {
         this.buttons = document.querySelectorAll(triggers);
@@ -17,30 +19,49 @@ export default class VideoPlayer {
             } catch(e){}
 
             button.addEventListener('click', () => {
-                if (!button.closest('.module__video-item') || button.closest('.module__video-item').getAttribute('data-disabled') !== 'true') {
-                    this.activeBtn = button;
+                    if (!button.closest('.module__video-item') || button.closest('.module__video-item').getAttribute('data-disabled') !== 'true') {
+                        this.activeBtn = button;
 
-                    if (document.querySelector('iframe#frame')) {
-                        this.popup.style.display = 'flex';
-                        if (this.path !== button.getAttribute('data-url')) {
+                        animations.popupFadeIn(this.popup);
+                        animations.popupContentScaleIn(this.popup.firstElementChild);
+
+                        if (document.querySelector('iframe#frame')) {
+                            this.popup.style.display = 'flex';
+                            setTimeout(() => {
+                                if (this.path !== button.getAttribute('data-url')) {
+                                    this.path = button.getAttribute('data-url');
+                                    this.player.loadVideoById({videoId: this.path});
+                                }
+                            }, 290);
+
+                        }
+                        else {
                             this.path = button.getAttribute('data-url');
-                            this.player.loadVideoById({videoId: this.path});
+                            this.createPlayer(this.path);
                         }
                     }
-                    else {
-                        this.path = button.getAttribute('data-url');
-                        this.createPlayer(this.path);
-                    }
-                }
             });
         });
     }
 
-    bindCloseButton() {
-        this.close.addEventListener('click', () => {
-            this.popup.style.display = 'none';
+    bindCloseButton(element, afterClickTimeout = null) {
+        const closePopup = () => {
+            animations.popupFadeOut(this.popup);
+            animations.popupContentScaleOut(this.popup.firstElementChild);
+
+            setTimeout(() => {
+                this.popup.style.display = 'none';
+            }, 340);
+
             this.player.stopVideo();
-        });
+
+            element.removeEventListener('click', closePopup);
+            this.bindCloseButton(element, 500);
+        }
+
+        setTimeout(() => {
+            element.addEventListener('click', closePopup);
+        }, afterClickTimeout);
     }
 
     createPlayer(url) {
@@ -86,7 +107,8 @@ export default class VideoPlayer {
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
             this.bindTriggers();
-            this.bindCloseButton();
+            this.bindCloseButton(this.close);
+            this.bindCloseButton(this.popup);
         }
     }
 }

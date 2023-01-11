@@ -5,6 +5,7 @@ import Difference from "./modules/difference";
 import Form from "./modules/forms";
 import ShowInfo from "./modules/showInfo";
 import Download from "./modules/download";
+import BindNextPageButtons from "./modules/bindNextPageButtons";
 
 window.addEventListener('DOMContentLoaded', () => {
     const slider = new MainSlider({buttons: '.next', container: '.page'});
@@ -48,4 +49,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     new ShowInfo('.plus').init();
     new Download('.download').init();
+
+    new BindNextPageButtons('[data-nextPage]').init();
 });

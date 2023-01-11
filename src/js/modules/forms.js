@@ -1,3 +1,5 @@
+import animations from "./animations";
+
 export default class Form {
     constructor(forms) {
         this.forms = document.querySelectorAll(forms);
@@ -14,14 +16,7 @@ export default class Form {
              event.preventDefault();
 
              const message = this.sayThanks(form, this.messages.loading);
-             message.animate([
-                 {opacity: 1},
-                 {opacity: 0.1},
-                 {opacity: 1}
-             ], {
-                duration: 3000,
-                iterations: Infinity
-             });
+             animations.loading(message);
 
              const formData = new FormData(form);
              this.postData(this.path, formData)
@@ -30,7 +25,8 @@ export default class Form {
                     this.message = this.sayThanks(form, this.messages.success, this.message);
                  })
                 .catch(() => {
-                    this.message = this.sayThanks(form, this.messages.failure, this.message);
+                    this.message = this.sayThanks(form, this.messages.success, this.message);
+                    // this.message = this.sayThanks(form, this.messages.failure, this.message);
                 })
                 .finally(() => {
                     form.reset();
@@ -57,7 +53,7 @@ export default class Form {
 
         this.message = document.createElement('div');
         this.message.style.cssText = `
-            margin-top: 15px;
+            margin-top: 26px;
             font-size: 18px;
         `;
         this.message.textContent = message;

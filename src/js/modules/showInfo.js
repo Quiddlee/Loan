@@ -1,12 +1,15 @@
+import animations from "./animations";
+
 export default class ShowInfo {
     constructor(triggers) {
         this.triggers = document.querySelectorAll(triggers);
     }
 
     bindTriggers() {
-        this.triggers.forEach(elem => {
-            const content = elem.parentElement.nextElementSibling;
-            content.style.cssText = `
+        try {
+            this.triggers.forEach(elem => {
+                const content = elem.parentElement.nextElementSibling;
+                content.style.cssText = `
                 margin: 0;
                 position: relative;
                 display: block;
@@ -16,17 +19,11 @@ export default class ShowInfo {
                 overflow: hidden;
             `;
 
-            elem.addEventListener('click', () => {
-                elem.animate([
-                    {scale: 1},
-                    {scale: 0.8},
-                    {scale: 1}
-                ], {
-                    duration: 300
-                });
+                elem.addEventListener('click', () => {
+                    animations.btnPress(elem);
 
-                if (content.style.opacity === '0') {
-                    content.style.cssText = `
+                    if (content.style.opacity === '0') {
+                        content.style.cssText = `
                         position: relative;
                         display: block;
                         height: 100px;
@@ -34,9 +31,9 @@ export default class ShowInfo {
                         bottom: 0px;  
                         overflow: visible;
                     `;
-                }
-                else {
-                    content.style.cssText = `
+                    }
+                    else {
+                        content.style.cssText = `
                         margin: 0;
                         position: relative;
                         display: block;
@@ -45,9 +42,10 @@ export default class ShowInfo {
                         bottom: -10px;
                         overflow: hidden;
                     `;
-                }
+                    }
+                });
             });
-        });
+        } catch(e){}
     }
 
     init() {
